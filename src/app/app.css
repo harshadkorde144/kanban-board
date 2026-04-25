@@ -1,0 +1,266 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #f0f2f5;
+}
+
+.board {
+    padding: 24px;
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea22, #764ba222);
+}
+
+h1 {
+    text-align: center;
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 28px;
+}
+
+.columns {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.column {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    width: 300px;
+    min-height: 450px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.todo {
+    border-top: 5px solid #2196F3;
+}
+
+.inprogress {
+    border-top: 5px solid #FF9800;
+}
+
+.done {
+    border-top: 5px solid #4CAF50;
+}
+
+.col-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.col-header h2 {
+    font-size: 1rem;
+    color: #444;
+}
+
+.count {
+    background: #eee;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.card {
+    background: #f9f9f9;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+}
+
+.card-top strong {
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.card-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 2px 4px;
+}
+
+.card p {
+    font-size: 0.82rem;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.assignee {
+    font-size: 0.78rem;
+    color: #888;
+    background: #eef;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.move-btns button {
+    background: #eee;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 2px 8px;
+    margin-left: 4px;
+    font-size: 0.8rem;
+}
+
+.move-btns button:hover {
+    background: #ddd;
+}
+
+.add-btn {
+    margin-top: auto;
+    background: #f0f0f0;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
+    cursor: pointer;
+    color: #888;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.add-btn:hover {
+    background: #e8e8e8;
+    border-color: #aaa;
+    color: #555;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    border-radius: 14px;
+    padding: 28px;
+    width: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal h3 {
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.modal input,
+.modal select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.modal input:focus,
+.modal select:focus {
+    border-color: #667eea;
+}
+
+.modal-btns {
+    display: flex;
+    gap: 10px;
+}
+
+.save-btn {
+    flex: 1;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.save-btn:hover {
+    background: #5a6fd6;
+}
+
+.cancel-btn {
+    flex: 1;
+    background: #eee;
+    color: #555;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.cancel-btn:hover {
+    background: #ddd;
+}
+.drop-zone {
+    min-height: 100px;
+    transition: background 0.2s;
+}
+
+.drop-zone.cdk-drop-list-dragging {
+    background: #e8f0fe;
+    border-radius: 8px;
+}
+
+.drag-handle {
+    cursor: grab;
+    color: #aaa;
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+}
+
+.cdk-drag-preview {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    background: white;
+    padding: 12px;
+}
+
+.cdk-drag-placeholder {
+    opacity: 0.3;
+    border: 2px dashed #aaa;
+    border-radius: 10px;
+    background: #f0f0f0;
+}
