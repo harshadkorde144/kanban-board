@@ -50,18 +50,18 @@
           },
           "defaultConfiguration": "production"
         },
-        "serve": {
-          "builder": "@angular/build:dev-server",
-          "configurations": {
-            "production": {
-              "buildTarget": "kanban-board:build:production"
-            },
-            "development": {
-              "buildTarget": "kanban-board:build:development"
-            }
+       "serve": {
+        "builder": "@angular/build:dev-server",
+        "configurations": {
+          "production": {
+            "buildTarget": "kanban-board:build:production"
           },
-          "defaultConfiguration": "development"
+          "development": {
+            "buildTarget": "kanban-board:build:development"
+          }
         },
+        "defaultConfiguration": "development"
+      },,
         "test": {
           "builder": "@angular/build:unit-test"
         }
