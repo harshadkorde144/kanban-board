@@ -1,63 +1,250 @@
-<div class="board">
-  <h1>🗂️ Kanban Board</h1>
-  <div class="columns">
-    @for (col of columns; track col.name; let ci = $index) {
-    <div class="column" [class.todo]="ci===0" [class.inprogress]="ci===1" [class.done]="ci===2">
-      <div class="col-header">
-        <h2>{{ col.name }}</h2>
-        <span class="count">{{ col.tasks.length }}</span>
+<div class="app" [class.dark]="darkMode" [class.light]="!darkMode">
+
+  <!-- Particles -->
+  <div class="particles">
+    @for (p of particles; track p.id) {
+      <div class="particle" [style.left.%]="p.x" [style.top.%]="p.y"
+        [style.width.px]="p.size" [style.height.px]="p.size"
+        [style.animation-duration.s]="p.duration" [style.animation-delay.s]="p.delay">
       </div>
-
-      <div cdkDropList [cdkDropListData]="col.tasks"[cdkDropListConnectedTo]="['col-0','col-1','col-2']" [id]="'col-' + ci"
-        (cdkDropListDropped)="drop($event)" class="drop-zone">
-
-        @for (task of col.tasks; track task.id; let ti = $index) {
-        <div class="card" cdkDrag>
-          <div class="drag-handle" cdkDragHandle>⠿</div>
-          <div class="card-top">
-            <strong>{{ task.title }}</strong>
-            <div class="card-actions">
-              <button (click)="openEditModal(ci, task)" title="Edit">✏️</button>
-              <button (click)="deleteTask(ci, task)" title="Delete">🗑️</button>
-            </div>
-          </div>
-          <p>{{ task.description }}</p>
-          <div class="card-footer">
-            <span class="assignee">👤 {{ task.assignee || 'Unassigned' }}</span>
-            <div class="move-btns">
-              @if (ci > 0) {
-              <button (click)="moveTask(ci, ti, -1)" title="Move Left">◀</button>
-              }
-              @if (ci < columns.length - 1) { <button (click)="moveTask(ci, ti, 1)" title="Move Right">▶</button>
-                }
-            </div>
-          </div>
-        </div>
-        }
-
-      </div>
-      <button class="add-btn" (click)="openAddModal(ci)">+ Add Task</button>
-    </div>
     }
   </div>
-</div>
 
-@if (showModal) {
-<div class="overlay" (click)="closeModal()">
-  <div class="modal" (click)="$event.stopPropagation()">
-    <h3>{{ editingTask ? 'Edit Task' : 'New Task' }}</h3>
-    <input placeholder="Title *" [(ngModel)]="newTask.title" />
-    <input placeholder="Description" [(ngModel)]="newTask.description" />
-    <select [(ngModel)]="newTask.assignee">
-      <option value="">Select Assignee</option>
-      @for (m of teamMembers; track m) {
-      <option [value]="m">{{ m }}</option>
-      }
-    </select>
-    <div class="modal-btns">
-      <button class="save-btn" (click)="saveTask()">Save</button>
-      <button class="cancel-btn" (click)="closeModal()">Cancel</button>
+  <!-- LOGIN PAGE -->
+  @if (showLoginPage) {
+    <div class="login-page">
+      <div class="login-box">
+        <div class="login-logo">🗂️</div>
+        <h2>Kanban Board</h2>
+        <p class="login-subtitle">Sign in to manage your tasks</p>
+
+        <div class="login-form">
+          <div class="input-group">
+            <span class="input-icon">👤</span>
+            <input
+              type="text"
+              placeholder="Username"
+              [(ngModel)]="loginUsername"
+              (keyup.enter)="login()"
+              class="login-input" />
+          </div>
+          <div class="input-group">
+            <span class="input-icon">🔒</span>
+            <input
+              type="password"
+              placeholder="Password"
+              [(ngModel)]="loginPassword"
+              (keyup.enter)="login()"
+              class="login-input" />
+          </div>
+
+          @if (loginError) {
+            <div class="login-error">{{ loginError }}</div>
+          }
+
+          <button class="login-btn" (click)="login()" [disabled]="isLoggingIn">
+            {{ isLoggingIn ? '⏳ Signing in...' : '🚀 Sign In' }}
+          </button>
+        </div>
+
+        <div class="login-hints">
+          <p>Demo Accounts:</p>
+          <div class="hints-grid">
+            <span>alice / alice123</span>
+            <span>bob / bob123</span>
+            <span>charlie / charlie123</span>
+            <span>admin / admin123</span>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  }
+
+  <!-- MAIN BOARD -->
+  @if (!showLoginPage) {
+
+    <!-- Confetti -->
+    @if (showConfetti) {
+      <div class="confetti-container">
+        @for (i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]; track i) {
+          <div class="confetti-piece" [style.left.%]="i * 5" [style.animation-delay.ms]="i * 100"></div>
+        }
+      </div>
+    }
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <h1>🗂️ Kanban Board</h1>
+        <p>Manage your tasks efficiently</p>
+      </div>
+      <div class="header-right">
+        <div class="user-info">
+          <div class="user-avatar" [style.background]="getAvatarColor(currentUser?.name || '')">
+            {{ getInitials(currentUser?.name || '') }}
+          </div>
+          <div class="user-details">
+            <span class="user-name">{{ currentUser?.name }}</span>
+            <span class="user-role">{{ currentUser?.role }}</span>
+          </div>
+        </div>
+        <button class="theme-btn" (click)="toggleDarkMode()">
+          {{ darkMode ? '☀️' : '🌙' }}
+        </button>
+        <button class="logout-btn" (click)="logout()">🚪 Logout</button>
+      </div>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <span class="stat-num">{{ totalTasks }}</span>
+        <span class="stat-label">Total Tasks</span>
+      </div>
+      <div class="stat-card inprogress-stat">
+        <span class="stat-num">{{ inProgressTasks }}</span>
+        <span class="stat-label">In Progress</span>
+      </div>
+      <div class="stat-card done-stat">
+        <span class="stat-num">{{ doneTasks }}</span>
+        <span class="stat-label">Completed</span>
+      </div>
+      <div class="stat-card progress-stat">
+        <span class="stat-num">{{ completionPercent }}%</span>
+        <span class="stat-label">Progress</span>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="completionPercent"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <div class="search-box">
+        <span>🔍</span>
+        <input placeholder="Search tasks..." [(ngModel)]="searchQuery" />
+      </div>
+      <select class="filter-select" [(ngModel)]="filterAssignee">
+        <option value="">👥 All Tasks</option>
+        @for (m of teamMembers; track m) {
+          <option [value]="m">{{ m }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Board -->
+    <div class="board">
+      <div class="columns">
+        @for (col of columns; track col.name; let ci = $index) {
+          <div class="column" [class.todo]="ci===0" [class.inprogress]="ci===1" [class.done]="ci===2">
+            <div class="col-header">
+              <div class="col-title">
+                <span class="col-icon">{{ ci===0 ? '📋' : ci===1 ? '⚙️' : '✅' }}</span>
+                <h2>{{ col.name }}</h2>
+              </div>
+              <span class="count">{{ filteredTasks(col).length }}</span>
+            </div>
+
+            <div class="col-progress">
+              <div class="col-progress-fill"
+                [style.width.%]="totalTasks ? (col.tasks.length / totalTasks * 100) : 0"
+                [class.todo-fill]="ci===0" [class.inprogress-fill]="ci===1" [class.done-fill]="ci===2">
+              </div>
+            </div>
+
+            <div cdkDropList [cdkDropListData]="col.tasks"
+              [cdkDropListConnectedTo]="['col-0','col-1','col-2']"
+              [id]="'col-' + ci" (cdkDropListDropped)="drop($event)" class="drop-zone">
+
+              @for (task of filteredTasks(col); track task.id; let ti = $index) {
+                <div class="card" cdkDrag
+                  [class.high]="task.priority==='high'"
+                  [class.medium]="task.priority==='medium'"
+                  [class.low]="task.priority==='low'">
+                  <div class="drag-handle" cdkDragHandle>⠿</div>
+                  <div class="card-top">
+                    <strong>{{ task.title }}</strong>
+                    <div class="card-actions">
+                      <button (click)="openEditModal(ci, task)">✏️</button>
+                      <button (click)="deleteTask(ci, task)">🗑️</button>
+                    </div>
+                  </div>
+                  @if (task.description) {
+                    <p>{{ task.description }}</p>
+                  }
+                  <div class="card-tags">
+                    <span class="priority-badge"
+                      [style.background]="getPriorityColor(task.priority || 'medium') + '33'"
+                      [style.color]="getPriorityColor(task.priority || 'medium')">
+                      {{ task.priority || 'medium' | titlecase }}
+                    </span>
+                    @if (task.dueDate) {
+                      <span class="due-date">📅 {{ task.dueDate }}</span>
+                    }
+                  </div>
+                  <div class="card-footer">
+                    <div class="avatar"
+                      [style.background]="getAvatarColor(task.assignee)"
+                      [attr.data-tooltip]="task.assignee">
+                      {{ getInitials(task.assignee) }}
+                    </div>
+                    <span class="assignee-name">{{ task.assignee || 'Unassigned' }}</span>
+                    <div class="move-btns">
+                      @if (ci > 0) {
+                        <button (click)="moveTask(ci, ti, -1)">◀</button>
+                      }
+                      @if (ci < columns.length - 1) {
+                        <button (click)="moveTask(ci, ti, 1)">▶</button>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+
+              @if (filteredTasks(col).length === 0) {
+                <div class="empty-state">
+                  <span class="empty-icon">{{ ci===0 ? '📝' : ci===1 ? '⚡' : '🎯' }}</span>
+                  <p>{{ ci===0 ? 'No tasks yet' : ci===1 ? 'Nothing in progress' : 'No completed tasks' }}</p>
+                </div>
+              }
+
+            </div>
+            <button class="add-btn" (click)="openAddModal(ci)">+ Add Task</button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Modal -->
+    @if (showModal) {
+      <div class="overlay" (click)="closeModal()">
+        <div class="modal" (click)="$event.stopPropagation()">
+          <h3>{{ editingTask ? '✏️ Edit Task' : '✨ New Task' }}</h3>
+          <input placeholder="Title *" [(ngModel)]="newTask.title" />
+          <input placeholder="Description" [(ngModel)]="newTask.description" />
+          <select [(ngModel)]="newTask.assignee">
+            <option value="">👤 Select Assignee</option>
+            @for (m of teamMembers; track m) {
+              <option [value]="m">{{ m }}</option>
+            }
+          </select>
+          <select [(ngModel)]="newTask.priority">
+            <option value="high">🔴 High Priority</option>
+            <option value="medium">🟡 Medium Priority</option>
+            <option value="low">🟢 Low Priority</option>
+          </select>
+          <input type="date" [(ngModel)]="newTask.dueDate" />
+          <div class="modal-btns">
+            <button class="save-btn" (click)="saveTask()">💾 Save</button>
+            <button class="cancel-btn" (click)="closeModal()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- FAB -->
+    <button class="fab" (click)="openAddModal(0)" title="Add New Task">+</button>
+
+  }
+
 </div>
-}
